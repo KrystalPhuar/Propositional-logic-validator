@@ -4,8 +4,11 @@
 
 int main()
 {
-  char test[] = "hello";
-  int x = strlen(test);
-  printf("%d", x);
+  char src[] = "hello";
+  char dst[] = "world";
+
+  char *result = strcat(dst, "hello");
+
+  printf("%s", result);
   return 0;
 }

@@ -29,11 +29,8 @@ char *mytail(char *list)  /*given non-empty string, returns string without the f
     return NULL;
   }
   
-  char *tail = malloc(sizeof(char)*(strlen(list)-1));
 
-  for(i=0; i<strlen(list)-1; i++)
-    *(tail+i)=*(list+i+1);
-  return tail;
+  return list+1;
 }
 
 char *segment(char *list, int i, int j)/* characters from pos i up to j-1, provided i<=j*/
@@ -104,26 +101,6 @@ char *parttwo(char *g)
   return NULL;
 }
 
-char bin(char *g)
-{/*for binary connective formulas, returns binary connective*/
-  int level = 0;
-  int i;
-
-  for(i = 0; i < strlen(g); i++)
-  {
-    if (*(g+i) == '(')
-      level++;
-    else if(*(g+i) == ')')
-      level--;
-
-    if (level == 0 && bc(*(g+i)))
-      return *(g+i);
-  }
-
-  printf("not a valid binary formula \n");
-  return '\0';
-}
-
 int isBin(char *g)
 {
   int level = 0;
@@ -192,47 +169,109 @@ int parse(char *g)
     return 0;
 }
 
-
+int isLiteral(char *g)
+{
+  if(strlen(g)==1 && prop(*g))
+    return 1;
+  else if (strlen(g) == 2 && *g == '~' && prop(*(g+1)))
+    return 1;
+  else
+    return 0;
+}
 
 int type(char *g)
 {/*return 0 if not a formula, 1 for literal, 2 for alpha, 3 for beta, 4 for double negation*/
-  int type = parse(g);
-  
-  if(type == 1)
+  if(!isFormula(g))
     return 0;
-  else if(type == 2)
+  else if(isLiteral(g))
+    return 1;
+  else if(*g == '~')
   {
+    char* tail = mytail(g);
+    if(*tail == '~')
+      return 4;
+    else if(connective(tail) == 'v')
+      return 2;
+    else if (connective(tail) == '^')
+      return 3;
+    else
+      return 2;
   }
-
+  else
+  {
+    if(connective(g) == 'v')
+      return 3;
+    else if (connective(g) == '^')
+      return 2;
+    else
+      return 3;
+  }
 }
 
-char *firstexp(char *g)
-{/* for alpha and beta formulas*/
-//  if (parse(g)==3)/*binary fmla*/  switch(bin(g))
-//		     {case('v'): return '0';break;
-//		     case('^'): return;break;
-//		     case('>'): return(??);break;
-//		     default:printf("what the f**k?");return(0);
-//		     }
-//  if ((parse(g)==2)&& (parse(mytail(g))==2)/*double neg*/) return(??);/*throw away first two chars*/
-//
-//  if ((parse(g)==2)&&parse(mytail(g))==3) /*negated binary*/ 
-//	switch(bin(mytail(g)))
-//	{
-//		case('v'):return(??);break;
-//		case('^'):return(??);break;
-//		case('>'): return(??);break;
-//	} 
-//  return(0);
-}		     
+char *negate(char *string)
+{
+  char *newString = malloc(sizeof(string)+1);
 
+  *newString = '~';
+  for(i = 0; i < strlen(string); i++)
+    *(newString+i+1) = *(string+i);
 
-char *secondexp(char *g)
-{/* for alpha and beta formulas, but not for double negations, returns the second expansion formula*/
-}		     
+  free(string);
+
+  return newString;
+}
+
+char *firstExpansion(char *g)
+{
+  if(*g == '~')
+  {
+    switch(connective(mytail(g)))
+    {
+      case '>':
+        return partone(mytail(g));
+        break;
+      case '^':
+        return negate(partone(mytail(g)));
+        break;
+      case 'v':
+        return negate(partone(mytail(g)));
+        break;
+      default:
+        printf("Error expanding first part\n");
+        return NULL;
+    }
+  }
+  else
+  {
+    switch(connective(g))
+    {
+      case '>':
+        return negate(partone(g));
+        break;
+      case '^':
+        return partone(g);
+        break;
+      case 'v':
+        return partone(g);
+        break;
+      default:
+        printf("Error expanding first part\n");
+        return NULL;
+    }
+  }
+}
+
+char *secondExpansion(char *g)
+{
+  if(*g == '~')
+    return negate(parttwo(mytail(g)));
+  else
+    return parttwo(g);
+}
 
 int find_above(struct tableau *t, char *g) /*Is g label of current node or above?*/
 {
+  return 0;
 }
 
 int closed1(struct tableau *t) /*check if p and not p at or above t*/
@@ -241,34 +280,90 @@ int closed1(struct tableau *t) /*check if p and not p at or above t*/
   else
     {
     }
+  return 0;
 }
 		  
 int closed(struct tableau *t) /*check if either *t is closed 1, or if all children are closed, if so return 1, else 0 */
 {
+  return 0;
 }
 
-void  add_one( struct tableau *t, char *g)/* adds g at every leaf below*/
+struct tableau *add_one( struct tableau *t, char *g)/* adds g at every leaf below*/
 {
-}
+  struct tableau *newNode = malloc(sizeof(struct tableau));
 
+  newNode->root = g;
+  newNode->parent = t;
+  newNode->left = NULL;
+  newNode->right = NULL;
+
+  return newNode;
+}
 void alpha(struct tableau *t, char *g, char *h)/*not for double negs, adds g then h at every leaf below*/
 {
+  if(t->left == NULL)
+  {
+    t->left = add_one(t, g);
+    t->left->left = add_one(t->left, h);
+  }
+  else
+  {
+    alpha(t->left, g, h);
+    if(t->right != NULL)
+      alpha(t->right, g, h);
+  }
 }
 
-void  add_two(struct tableau *t, char *g, char *h)/*for beta s, adds g, h on separate branches at every leaf below*/
+void  beta(struct tableau *t, char *g, char *h)/*for beta s, adds g, h on separate branches at every leaf below*/
 {
+  if(t->left == NULL)
+  {
+    t->left = add_one(t, g);
+    t->right = add_one(t, h);
+  }
+  else
+  {
+    beta(t->left, g, h);
+    if(t->right != NULL)
+    {
+      beta(t->right, g, h);
+    }
+  }
 }
+
+
 
 void expand(struct tableau *tp)/*must not be null.  Checks the root.  If literal, does nothing.  If beta calls add_two with suitable fmlas, if alpha calls alpha with suitable formulas unless a double negation then � */
 { 
+  char *formula = tp->root;
+
+  switch(type(formula))
+  {
+    case(0):
+      printf("Error, trying to expand invalid formula");
+      break;
+    case(1):
+      break;
+    case(2):
+      alpha(tp, firstExpansion(formula), secondExpansion(formula));
+      break;
+    case(3):
+      beta(tp, firstExpansion(formula), secondExpansion(formula));
+      break;
+    case(4):
+      tp->root = (formula + 2);
+      expand(tp);
+      break;
+  }
+      
 }
 
 void complete(struct tableau *t)/*expands the root then recursively expands any children*/
 { if (t!=NULL)
     { 
       expand(t);
-      complete((*t).left);
-      complete((*t).right); 
+      complete(t->left);
+      complete(t->right); 
     }
 }
 
