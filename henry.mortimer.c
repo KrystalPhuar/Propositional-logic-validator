@@ -41,7 +41,7 @@ char *segment(char *list, int i, int j)/* characters from pos i up to j-1, provi
     return NULL;
   }
   int sectionLength = j-i;
-  char *section = malloc(sizeof(char)*sectionLength);
+  char *section = calloc(sectionLength, sizeof(char));
 
   int x;
 
@@ -150,7 +150,14 @@ int isFormula(char *g)
   else if (*g == '~')
     return isFormula(mytail(g));
   else if (isBin(g))
-    return (isFormula(partone(g)) && isFormula(parttwo(g)));
+  {
+    char *first = partone(g);
+    char *second = parttwo(g);
+    int result = isFormula(first) && isFormula(second);
+    free(first);
+    free(second);
+    return result;
+  }
   else
     return 0;
 }
@@ -356,12 +363,15 @@ void expand(struct tableau *tp)/*must not be null.  Checks the root.  If literal
 }
 
 void complete(struct tableau *t)/*expands the root then recursively expands any children*/
-{ if (t!=NULL)
-    { 
-      expand(t);
-      complete(t->left);
-      complete(t->right); 
-    }
+{
+  if (t!=NULL)
+  {
+    if(!isFormula(t->root))
+      return;
+    expand(t);
+    complete(t->left);
+    complete(t->right); 
+  }
 }
 
 int main()
