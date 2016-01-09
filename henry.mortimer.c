@@ -413,6 +413,7 @@ void expand(struct tableau *tp)/*must not be null.  Checks the root.  If literal
 
 void complete(struct tableau *t)/*expands the root then recursively expands any children*/
 {
+  //test comment please ignore
   if (t!=NULL)
   {
     if(!isFormula(t->root))
@@ -422,6 +423,7 @@ void complete(struct tableau *t)/*expands the root then recursively expands any 
     complete(t->right); 
   }
 }
+
 
 int main()
 { /*input 6 strings from "input.txt" */
