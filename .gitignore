@@ -1,6 +1,6 @@
 #executables
-a.out
-test
+./a.out
+./test
 
 *.swp
 .DS_Store
