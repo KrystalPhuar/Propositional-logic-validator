@@ -2,3 +2,7 @@
 a.out
 test
 
+*.swp
+.DS_Store
+*.dSYM
+*~
