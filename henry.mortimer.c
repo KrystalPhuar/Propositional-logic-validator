@@ -5,6 +5,7 @@
 int Fsize=50; /*enough space for the fmlas we use*/
 int inputs=6;
 
+#define NEG '−'
 
 int i;
 int j;
@@ -16,7 +17,7 @@ struct tableau {
   struct tableau *parent;
 }*tab, *node, *node1, *kid, *pa;
 
-/* Use p, q, r, s for propositions.  Use ~ for negation.  Use v for OR, use ^ for AND, use > for implies.  Brackets are (, ). */
+/* Use p, q, r, s for propositions.  Use - for negation.  Use v for OR, use ^ for AND, use > for implies.  Brackets are (, ). */
 
 
 /* List processing methods  */
@@ -147,7 +148,7 @@ int isFormula(char *g)
 {
   if(strlen(g)==1 && prop(*g))
     return 1;
-  else if (*g == '~')
+  else if (*g == NEG)
     return isFormula(mytail(g));
   else if (isBin(g))
   {
@@ -165,7 +166,7 @@ int parse(char *g)
 {/* return 1 if a proposition, 2 if neg, 3 if binary, ow 0*/
   if(prop(*g))
     return 1;
-  else if(*g == '~')
+  else if(*g == NEG)
     return 2;
   else if(*g =='(')
     return 3;
@@ -177,7 +178,7 @@ int isLiteral(char *g)
 {
   if(strlen(g)==1 && prop(*g))
     return 1;
-  else if (strlen(g) == 2 && *g == '~' && prop(*(g+1)))
+  else if (strlen(g) == 2 && *g == NEG && prop(*(g+1)))
     return 1;
   else
     return 0;
@@ -189,10 +190,10 @@ int type(char *g)
     return 0;
   else if(isLiteral(g))
     return 1;
-  else if(*g == '~')
+  else if(*g == NEG)
   {
     char* tail = mytail(g);
-    if(*tail == '~')
+    if(*tail == NEG)
       return 4;
     else if(connective(tail) == 'v')
       return 2;
@@ -216,7 +217,7 @@ char *negate(char *string)
 {
   char *newString = malloc(sizeof(string)+1);
 
-  *newString = '~';
+  *newString = NEG;
   for(i = 0; i < strlen(string); i++)
     *(newString+i+1) = *(string+i);
 
@@ -227,7 +228,7 @@ char *negate(char *string)
 
 char *firstExpansion(char *g)
 {
-  if(*g == '~')
+  if(*g == NEG)
   {
     switch(connective(mytail(g)))
     {
@@ -267,7 +268,7 @@ char *firstExpansion(char *g)
 
 char *secondExpansion(char *g)
 {
-  if(*g == '~')
+  if(*g == NEG)
     return negate(parttwo(mytail(g)));
   else
     return parttwo(g);
