@@ -5,7 +5,7 @@
 int Fsize=50; /*enough space for the fmlas we use*/
 int inputs=6;
 
-#define NEG '−'
+const char NEG = '-';
 
 int i;
 int j;
@@ -274,23 +274,60 @@ char *secondExpansion(char *g)
     return parttwo(g);
 }
 
+
+char *invert(char *g)
+{
+  char *inverted;
+  if(*g == NEG)
+  {
+    inverted = calloc(strlen(g)-1, sizeof(char));
+    strcpy(inverted, mytail(g));
+  }
+  else
+  {
+    inverted = calloc(strlen(g)+1, sizeof(char));
+    *inverted = NEG;
+    strcpy(mytail(inverted), g);
+  }
+  return inverted;
+}
+
 int find_above(struct tableau *t, char *g) /*Is g label of current node or above?*/
 {
-  return 0;
+  if(t == NULL)
+    return 0;
+  else
+    if(strcmp(t->root, g))
+      return 1;
+    else
+      return find_above(t->parent, g);
 }
 
 int closed1(struct tableau *t) /*check if p and not p at or above t*/
 {
-  if (t==NULL) return(0);
+  if (t==NULL) 
+    return(0);
   else
-    {
-    }
-  return 0;
+  {
+    char *inverted = invert(t->root);
+    int result = find_above(t->parent, inverted);
+
+    free(inverted);
+    return result;
+  }
 }
 		  
 int closed(struct tableau *t) /*check if either *t is closed 1, or if all children are closed, if so return 1, else 0 */
 {
-  return 0;
+  if(closed1(t))
+    return 1;
+  else if(t==NULL)
+    return 0;
+
+  if(t->right != NULL)
+    return closed(t->left) && closed(t->right);
+  else
+    return closed(t->left);
 }
 
 struct tableau *add_one( struct tableau *t, char *g)/* adds g at every leaf below*/
@@ -303,6 +340,18 @@ struct tableau *add_one( struct tableau *t, char *g)/* adds g at every leaf belo
   newNode->right = NULL;
 
   return newNode;
+}
+
+void doubleNeg(struct tableau *t, char *g)
+{
+  if(t->left == NULL)
+    t->left = add_one(t, g);
+  else
+  {
+    doubleNeg(t->left,g);
+    if(t->right != NULL)
+      doubleNeg(t->right,g);
+  }
 }
 void alpha(struct tableau *t, char *g, char *h)/*not for double negs, adds g then h at every leaf below*/
 {
@@ -356,8 +405,7 @@ void expand(struct tableau *tp)/*must not be null.  Checks the root.  If literal
       beta(tp, firstExpansion(formula), secondExpansion(formula));
       break;
     case(4):
-      tp->root = (formula + 2);
-      expand(tp);
+      doubleNeg(tp, formula+2);
       break;
   }
       
