@@ -206,14 +206,18 @@ int type(char *g)
     else
       return 2;
   }
-  else
+  else if(connective(g) == '(')
   {
     if(connective(g) == 'v')
       return 3;
     else if (connective(g) == '^')
       return 2;
     else
-        return 0;
+      return 3;
+  }
+  else
+    return 0;
+
 }
 
 char *negate(char *string)
@@ -235,40 +239,38 @@ char *firstExpansion(char *g)
   {
     switch(connective(mytail(g)))
     {
-        switch(connective(mytail(g)))
-        {
-            case '>':
-                return partone(mytail(g));
-                break;
-            case '^':
-                return negate(partone(mytail(g)));
-                break;
-            case 'v':
-                return negate(partone(mytail(g)));
-                break;
-            default:
-                printf("Error expanding first part\n");
-                return NULL;
-        }
+        case '>':
+            return partone(mytail(g));
+            break;
+        case '^':
+            return negate(partone(mytail(g)));
+            break;
+        case 'v':
+            return negate(partone(mytail(g)));
+            break;
+        default:
+            printf("Error expanding first part\n");
+            return NULL;
     }
-    else
+  }
+  else
+  {
+    switch(connective(g))
     {
-        switch(connective(g))
-        {
-            case '>':
-                return negate(partone(g));
-                break;
-            case '^':
-                return partone(g);
-                break;
-            case 'v':
-                return partone(g);
-                break;
-            default:
-                printf("Error expanding first part\n");
-                return NULL;
-        }
+        case '>':
+            return negate(partone(g));
+            break;
+        case '^':
+            return partone(g);
+            break;
+        case 'v':
+            return partone(g);
+            break;
+        default:
+            printf("Error expanding first part\n");
+            return NULL;
     }
+  }
 }
 
 char *secondExpansion(char *g)
