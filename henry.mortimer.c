@@ -5,6 +5,7 @@
 int Fsize=50; /*enough space for the fmlas we use*/
 int inputs=6;
 
+const char NEG = '-';
 
 int i;
 int j;
@@ -16,7 +17,7 @@ struct tableau {
     struct tableau *parent;
 }*tab, *node, *node1, *kid, *pa;
 
-/* Use p, q, r, s for propositions.  Use ~ for negation.  Use v for OR, use ^ for AND, use > for implies.  Brackets are (, ). */
+/* Use p, q, r, s for propositions.  Use - for negation.  Use v for OR, use ^ for AND, use > for implies.  Brackets are (, ). */
 
 
 /* List processing methods  */
@@ -35,20 +36,20 @@ char *mytail(char *list)  /*given non-empty string, returns string without the f
 
 char *segment(char *list, int i, int j)/* characters from pos i up to j-1, provided i<=j*/
 {
-    if(i>j)
-    {
-        printf("error i is greater than j \n");
-        return NULL;
-    }
-    int sectionLength = j-i;
-    char *section = calloc(sectionLength, sizeof(char));
-    
-    int x;
-    
-    for(x=0; x<sectionLength; x++)
-        *(section+x) = *(list+x+i);
-    printf("I produced this segment: %s from %s, with point %i and %i\n", section, list, i, j);
-    return section;
+  if(i>j)
+  {
+    printf("error i is greater than j \n");
+    return NULL;
+  }
+  int sectionLength = j-i;
+  char *section = calloc(sectionLength, sizeof(char));
+
+  int x;
+
+  for(x=0; x<sectionLength; x++)
+   *(section+x) = *(list+x+i);
+
+  return section;
 }
 
 /* Basics.  Recognise propositions and connectives.  */
@@ -149,85 +150,90 @@ char connective(char *g)
 
 int isFormula(char *g)
 {
-    if(strlen(g)==1 && prop(*g))
-        return 1;
-    else if (*g == '~')
-        return isFormula(mytail(g));
-    else if (isBin(g))
-        return (isFormula(partone(g)) && isFormula(parttwo(g)));
-    else
-        return 0;
+  if(strlen(g)==1 && prop(*g))
+    return 1;
+  else if (*g == NEG)
+    return isFormula(mytail(g));
+  else if (isBin(g))
+  {
+    char *first = partone(g);
+    char *second = parttwo(g);
+    int result = isFormula(first) && isFormula(second);
+    free(first);
+    free(second);
+    return result;
+  }
+  else
+    return 0;
 }
 int parse(char *g)
 {/* return 1 if a proposition, 2 if neg, 3 if binary, ow 0*/
-    if(!isFormula(g))
-        return 0;
-    
-    if(prop(*g))
-        return 1;
-    else if(*g == '~')
-        return 2;
-    else if(*g =='(')
-        return 3;
-    else
-        return 0;
+  if(prop(*g))
+    return 1;
+  else if(*g == NEG)
+    return 2;
+  else if(*g =='(')
+    return 3;
+  else
+    return 0;
 }
 
 int isLiteral(char *g)
 {
-    if(strlen(g)==1 && prop(*g))
-        return 1;
-    else if (strlen(g) == 2 && *g == '~' && prop(*(g+1)))
-        return 1;
-    else
-        return 0;
+  if(strlen(g)==1 && prop(*g))
+    return 1;
+  else if (strlen(g) == 2 && *g == NEG && prop(*(g+1)))
+    return 1;
+  else
+    return 0;
 }
 
 int type(char *g)
 {/*return 0 if not a formula, 1 for literal, 2 for alpha, 3 for beta, 4 for double negation*/
-    if(isLiteral(g))
-        return 1;
-    else if(*g == '~')
-    {
-        char* tail = mytail(g);
-        if(*tail == '~')
-            return 4;
-        else if(connective(tail) == 'v')
-            return 2;
-        else if (connective(tail) == '^')
-            return 3;
-        else
-            return 2;
-    }
-    else if (*g == '(')
-    {
-        if(connective(g) == 'v')
-            return 3;
-        else if (connective(g) == '^')
-            return 2;
-        else
-            return 3;
-    }
+  if(!isFormula(g))
+    return 0;
+  else if(isLiteral(g))
+    return 1;
+  else if(*g == NEG)
+  {
+    char* tail = mytail(g);
+    if(*tail == NEG)
+      return 4;
+    else if(connective(tail) == 'v')
+      return 2;
+    else if (connective(tail) == '^')
+      return 3;
+    else
+      return 2;
+  }
+  else
+  {
+    if(connective(g) == 'v')
+      return 3;
+    else if (connective(g) == '^')
+      return 2;
     else
         return 0;
 }
 
 char *negate(char *string)
 {
-    char *newString = malloc(sizeof(string)+1);
-    
-    *newString = '~';
-    for(i = 0; i < strlen(string); i++)
-        *(newString+i+1) = *(string+i);
-    
-    free(string);
-    
-    return newString;
+  char *newString = malloc(sizeof(string)+1);
+
+  *newString = NEG;
+  for(i = 0; i < strlen(string); i++)
+    *(newString+i+1) = *(string+i);
+
+  free(string);
+
+  return newString;
 }
 
 char *firstExpansion(char *g)
 {
-    if(*g == '~')
+  if(*g == NEG)
+  {
+    switch(connective(mytail(g)))
     {
         switch(connective(mytail(g)))
         {
@@ -267,29 +273,66 @@ char *firstExpansion(char *g)
 
 char *secondExpansion(char *g)
 {
-    if(*g == '~')
-        return negate(parttwo(mytail(g)));
-    else
-        return parttwo(g);
+  if(*g == NEG)
+    return negate(parttwo(mytail(g)));
+  else
+    return parttwo(g);
+}
+
+
+char *invert(char *g)
+{
+  char *inverted;
+  if(*g == NEG)
+  {
+    inverted = calloc(strlen(g)-1, sizeof(char));
+    strcpy(inverted, mytail(g));
+  }
+  else
+  {
+    inverted = calloc(strlen(g)+1, sizeof(char));
+    *inverted = NEG;
+    strcpy(mytail(inverted), g);
+  }
+  return inverted;
 }
 
 int find_above(struct tableau *t, char *g) /*Is g label of current node or above?*/
 {
+  if(t == NULL)
     return 0;
+  else
+    if(strcmp(t->root, g))
+      return 1;
+    else
+      return find_above(t->parent, g);
 }
 
 int closed1(struct tableau *t) /*check if p and not p at or above t*/
 {
-    if (t==NULL) return(0);
-    else
-    {
-    }
-    return 0;
+  if (t==NULL) 
+    return(0);
+  else
+  {
+    char *inverted = invert(t->root);
+    int result = find_above(t->parent, inverted);
+
+    free(inverted);
+    return result;
+  }
 }
 
 int closed(struct tableau *t) /*check if either *t is closed 1, or if all children are closed, if so return 1, else 0 */
 {
+  if(closed1(t))
+    return 1;
+  else if(t==NULL)
     return 0;
+
+  if(t->right != NULL)
+    return closed(t->left) && closed(t->right);
+  else
+    return closed(t->left);
 }
 
 struct tableau *add_one( struct tableau *t, char *g)/* adds g at every leaf below*/
@@ -302,6 +345,18 @@ struct tableau *add_one( struct tableau *t, char *g)/* adds g at every leaf belo
     newNode->right = NULL;
     
     return newNode;
+}
+
+void doubleNeg(struct tableau *t, char *g)
+{
+  if(t->left == NULL)
+    t->left = add_one(t, g);
+  else
+  {
+    doubleNeg(t->left,g);
+    if(t->right != NULL)
+      doubleNeg(t->right,g);
+  }
 }
 void alpha(struct tableau *t, char *g, char *h)/*not for double negs, adds g then h at every leaf below*/
 {
@@ -338,30 +393,27 @@ void  beta(struct tableau *t, char *g, char *h)/*for beta s, adds g, h on separa
 
 
 void expand(struct tableau *tp)/*must not be null.  Checks the root.  If literal, does nothing.  If beta calls add_two with suitable fmlas, if alpha calls alpha with suitable formulas unless a double negation then � */
-{
-    char *formula = tp->root;
-    int kind = type(tp->root);
-    switch(kind)
-    {
-        case(0):
-            printf("Error, trying to expand invalid formula\n");
-            printf("Erroneuos formula: %s\n", tp->root);
-            printf("%i\n", type(tp->root));
-            break;
-        case(1):
-            break;
-        case(2):
-            alpha(tp, firstExpansion(formula), secondExpansion(formula));
-            break;
-        case(3):
-            beta(tp, firstExpansion(formula), secondExpansion(formula));
-            break;
-        case(4):
-            tp->root = (formula + 2);
-            expand(tp);
-            break;
-    }
-    
+{ 
+  char *formula = tp->root;
+
+  switch(type(formula))
+  {
+    case(0):
+      printf("Error, trying to expand invalid formula");
+      break;
+    case(1):
+      break;
+    case(2):
+      alpha(tp, firstExpansion(formula), secondExpansion(formula));
+      break;
+    case(3):
+      beta(tp, firstExpansion(formula), secondExpansion(formula));
+      break;
+    case(4):
+      doubleNeg(tp, formula+2);
+      break;
+  }
+      
 }
 
 void complete(struct tableau *t)/*expands the root then recursively expands any children*/
@@ -390,8 +442,7 @@ void printTableau(struct tableau *t)
 }
 int main()
 { /*input 6 strings from "input.txt" */
-    char *testString = "~(p>(q>p))";
-    int result = type(testString);
+    char *testString = "-(p>(q>p))";
     
     struct tableau testTab;
     testTab.root = testString;
@@ -403,7 +454,6 @@ int main()
     
     printTableau(&testTab);
     
-    printf("%d\n", result);
     
     return 0;
     //  char *names[inputs];/*to store each of the input strings*/
