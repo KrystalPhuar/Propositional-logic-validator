@@ -444,66 +444,52 @@ void printTableau(struct tableau *t)
 }
 int main()
 { /*input 6 strings from "input.txt" */
-    char *testString = "-(p>(q>p))";
-    
-    struct tableau testTab;
-    testTab.root = testString;
-    testTab.left = NULL;
-    testTab.right = NULL;
-    testTab.parent = NULL;
-    printf("Completing tableau\n");
-    complete(&testTab);
-    
-    printTableau(&testTab);
-    
-    
-    return 0;
-    //  char *names[inputs];/*to store each of the input strings*/
-    //
-    //  for (i=0;i<inputs;i++) names[i]=malloc(Fsize);/*create enough space*/
-    //
-    //
-    //
-    //  FILE *fp, *fpout, *fopen();
-    //
-    //  if ((  fp=fopen("input.txt","r"))==NULL){printf("Error opening file");exit(1);}
-    //  if ((  fpout=fopen("output.txt","w"))==NULL){printf("Error opening file");exit(1);}/*ouputs to be sent to "output.txt"*/
-    //
-    //  fscanf(fp,"%s %s %s %s %s %s",names[0],names[1], names[2], names[3],names[4],names[5]);/*read input strings from "input.txt"*/
-    //
-    //  /*lets check your parser*/
-    //  for(i=0;i<inputs;i++)
-    //    {j=parse(names[i]);
-    //      switch(j)
-    //  {
-    //  case(0):fprintf(fpout,"%s is not a formula", names[i]);break;
-    //  case(1):fprintf(fpout,"%s is a proposition",names[i]);break;
-    //  case(2):fprintf(fpout,"%s is a negation",names[i]);break;
-    //  case(3):fprintf(fpout,"%s is a binary formula",names[i]);break;
-    //  default:fprintf(fpout,"%s is not a formula",names[i]);break;
-    //  }
-    //    }
-    //
-    //  /*make 6 new tableaus each with name at root, no children, no parent*/
-    //
-    //  struct tableau tabs[inputs];
-    //
-    //  for(i=0;i<inputs;i++)
-    //    {
-    //      tabs[i].root=names[i];
-    //      tabs[i].parent=NULL;
-    //      tabs[i].left=NULL;
-    //      tabs[i].right=NULL;
-    //
-    //      /*expand each tableau until complete, then see if closed */
-    //
-    //     complete(&tabs[i]);
-    //      if (closed(&tabs[i])) fprintf(fpout,"%s is not satisfiable\n", names[i]);
-    //      else fprintf(fpout,"%s is satisfiable\n", names[i]);
-    //    }
-    //
-    //  fclose(fp);
-    //  fclose(fpout);
-    // 
-    //  return(0); 
+  printf("Help\n");
+  char *names[inputs];/*to store each of the input strings*/
+  printf("Starting\n");
+  for (i=0;i<inputs;i++) names[i]=malloc(Fsize*sizeof(char));/*create enough space*/
+
+  FILE *fp, *fpout, *fopen();
+
+  if ((  fp=fopen("input.txt","r"))==NULL){printf("Error opening file");exit(1);}
+  if ((  fpout=fopen("output.txt","w"))==NULL){printf("Error opening file");exit(1);}/*ouputs to be sent to "output.txt"*/
+
+  fscanf(fp,"%s %s %s %s %s %s",names[0],names[1], names[2], names[3],names[4],names[5]);/*read input strings from "input.txt"*/
+  printf("Parsing strings\n");
+  /*lets check your parser*/
+  for(i=0;i<inputs;i++)
+  {
+    j=parse(names[i]);
+    switch(j)
+    {
+      case(0):fprintf(fpout,"%s is not a formula\n", names[i]);break;
+      case(1):fprintf(fpout,"%s is a proposition\n",names[i]);break;
+      case(2):fprintf(fpout,"%s is a negation\n",names[i]);break;
+      case(3):fprintf(fpout,"%s is a binary formula\n",names[i]);break;
+      default:fprintf(fpout,"%s is not a formula\n",names[i]);break;
+    }
+  }
+
+  /*make 6 new tableaus each with name at root, no children, no parent*/
+
+  struct tableau tabs[inputs];
+  
+  printf("Completing tabs \n");
+  for(i=0;i<inputs;i++)
+  {
+    tabs[i].root=names[i];
+    tabs[i].parent=NULL;
+    tabs[i].left=NULL;
+    tabs[i].right=NULL;
+
+    /*expand each tableau until complete, then see if closed */
+    complete(&tabs[i]);
+   // if (closed(&tabs[i])) fprintf(fpout,"%s is not satisfiable\n", names[i]);
+   // else fprintf(fpout,"%s is satisfiable\n", names[i]);
+  }
+
+ // fclose(fp);
+ // fclose(fpout);
+
+  return(0); 
 }
