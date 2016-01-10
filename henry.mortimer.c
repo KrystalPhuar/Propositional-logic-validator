@@ -43,7 +43,11 @@ char *segment(char *list, int i, int j)/* characters from pos i up to j-1, provi
   }
   int sectionLength = j-i;
 <<<<<<< HEAD
+<<<<<<< HEAD
   char *section = calloc(sectionLength, sizeof(char));
+=======
+  char *section = malloc(sizeof(char)*sectionLength);
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
 =======
   char *section = malloc(sizeof(char)*sectionLength);
 >>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
@@ -153,6 +157,7 @@ int isFormula(char *g)
   if(strlen(g)==1 && prop(*g))
     return 1;
 <<<<<<< HEAD
+<<<<<<< HEAD
   else if (*g == NEG)
     return isFormula(mytail(g));
   else if (isBin(g))
@@ -165,10 +170,15 @@ int isFormula(char *g)
     return result;
   }
 =======
+=======
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
   else if (*g == '~')
     return isFormula(mytail(g));
   else if (isBin(g))
     return (isFormula(partone(g)) && isFormula(parttwo(g)));
+<<<<<<< HEAD
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
+=======
 >>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
   else
     return 0;
@@ -176,16 +186,22 @@ int isFormula(char *g)
 int parse(char *g)
 {/* return 1 if a proposition, 2 if neg, 3 if binary, ow 0*/
 <<<<<<< HEAD
+<<<<<<< HEAD
   if(prop(*g))
     return 1;
   else if(*g == NEG)
 =======
+=======
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
   if(!isFormula(g))
     return 0;
 
   if(prop(*g))
     return 1;
   else if(*g == '~')
+<<<<<<< HEAD
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
+=======
 >>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
     return 2;
   else if(*g =='(')
@@ -199,7 +215,11 @@ int isLiteral(char *g)
   if(strlen(g)==1 && prop(*g))
     return 1;
 <<<<<<< HEAD
+<<<<<<< HEAD
   else if (strlen(g) == 2 && *g == NEG && prop(*(g+1)))
+=======
+  else if (strlen(g) == 2 && *g == '~' && prop(*(g+1)))
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
 =======
   else if (strlen(g) == 2 && *g == '~' && prop(*(g+1)))
 >>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
@@ -215,15 +235,21 @@ int type(char *g)
   else if(isLiteral(g))
     return 1;
 <<<<<<< HEAD
+<<<<<<< HEAD
   else if(*g == NEG)
   {
     char* tail = mytail(g);
     if(*tail == NEG)
 =======
+=======
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
   else if(*g == '~')
   {
     char* tail = mytail(g);
     if(*tail == '~')
+<<<<<<< HEAD
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
+=======
 >>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
       return 4;
     else if(connective(tail) == 'v')
@@ -234,7 +260,11 @@ int type(char *g)
       return 2;
   }
 <<<<<<< HEAD
+<<<<<<< HEAD
   else if(connective(g) == '(')
+=======
+  else
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
 =======
   else
 >>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
@@ -247,9 +277,12 @@ int type(char *g)
       return 3;
   }
 <<<<<<< HEAD
+<<<<<<< HEAD
   else
     return 0;
 
+=======
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
 =======
 >>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
 }
@@ -259,7 +292,11 @@ char *negate(char *string)
   char *newString = malloc(sizeof(string)+1);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   *newString = NEG;
+=======
+  *newString = '~';
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
 =======
   *newString = '~';
 >>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
@@ -273,6 +310,7 @@ char *negate(char *string)
 
 char *firstExpansion(char *g)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
   if(*g == NEG)
   {
@@ -295,6 +333,12 @@ char *firstExpansion(char *g)
   {
     switch(connective(mytail(g)))
     {
+=======
+  if(*g == '~')
+  {
+    switch(connective(mytail(g)))
+    {
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
       case '>':
         return partone(mytail(g));
         break;
@@ -307,6 +351,9 @@ char *firstExpansion(char *g)
       default:
         printf("Error expanding first part\n");
         return NULL;
+<<<<<<< HEAD
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
+=======
 >>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
     }
   }
@@ -314,6 +361,7 @@ char *firstExpansion(char *g)
   {
     switch(connective(g))
     {
+<<<<<<< HEAD
 <<<<<<< HEAD
         case '>':
             return negate(partone(g));
@@ -328,6 +376,8 @@ char *firstExpansion(char *g)
             printf("Error expanding first part\n");
             return NULL;
 =======
+=======
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
       case '>':
         return negate(partone(g));
         break;
@@ -340,6 +390,9 @@ char *firstExpansion(char *g)
       default:
         printf("Error expanding first part\n");
         return NULL;
+<<<<<<< HEAD
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
+=======
 >>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
     }
   }
@@ -347,6 +400,7 @@ char *firstExpansion(char *g)
 
 char *secondExpansion(char *g)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
   if(*g == NEG)
     return negate(parttwo(mytail(g)));
@@ -371,15 +425,21 @@ char *invert(char *g)
   }
   return inverted;
 =======
+=======
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
   if(*g == '~')
     return negate(parttwo(mytail(g)));
   else
     return parttwo(g);
+<<<<<<< HEAD
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
+=======
 >>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
 }
 
 int find_above(struct tableau *t, char *g) /*Is g label of current node or above?*/
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
   if(t == NULL)
     return 0;
@@ -391,10 +451,14 @@ int find_above(struct tableau *t, char *g) /*Is g label of current node or above
 =======
   return 0;
 >>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
+=======
+  return 0;
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
 }
 
 int closed1(struct tableau *t) /*check if p and not p at or above t*/
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
   if (t==NULL) 
     return(0);
@@ -407,16 +471,22 @@ int closed1(struct tableau *t) /*check if p and not p at or above t*/
     return result;
   }
 =======
+=======
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
   if (t==NULL) return(0);
   else
     {
     }
   return 0;
+<<<<<<< HEAD
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
+=======
 >>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
 }
 		  
 int closed(struct tableau *t) /*check if either *t is closed 1, or if all children are closed, if so return 1, else 0 */
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
   if(closed1(t))
     return 1;
@@ -427,6 +497,9 @@ int closed(struct tableau *t) /*check if either *t is closed 1, or if all childr
     return closed(t->left) && closed(t->right);
   else
     return closed(t->left);
+=======
+  return 0;
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
 =======
   return 0;
 >>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
@@ -442,6 +515,7 @@ struct tableau *add_one( struct tableau *t, char *g)/* adds g at every leaf belo
   newNode->right = NULL;
 
   return newNode;
+<<<<<<< HEAD
 }
 
 void doubleNeg(struct tableau *t, char *g)
@@ -454,6 +528,8 @@ void doubleNeg(struct tableau *t, char *g)
     if(t->right != NULL)
       doubleNeg(t->right,g);
   }
+=======
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
 }
 void alpha(struct tableau *t, char *g, char *h)/*not for double negs, adds g then h at every leaf below*/
 {
@@ -508,7 +584,12 @@ void expand(struct tableau *tp)/*must not be null.  Checks the root.  If literal
       break;
     case(4):
 <<<<<<< HEAD
+<<<<<<< HEAD
       doubleNeg(tp, formula+2);
+=======
+      tp->root = (formula + 2);
+      expand(tp);
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
 =======
       tp->root = (formula + 2);
       expand(tp);
@@ -529,6 +610,7 @@ void complete(struct tableau *t)/*expands the root then recursively expands any 
 
 int main()
 { /*input 6 strings from "input.txt" */
+<<<<<<< HEAD
 <<<<<<< HEAD
   printf("Help\n");
   char *names[inputs];/*to store each of the input strings*/
@@ -579,6 +661,8 @@ int main()
 
   return(0); 
 =======
+=======
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
   char *testString = "(p>q))";
 
   int result = parse(testString);
@@ -634,5 +718,8 @@ int main()
 //  fclose(fpout);
 // 
 //  return(0); 
+<<<<<<< HEAD
+>>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
+=======
 >>>>>>> parent of 39a12cc... fixed wierd ass bug with malloc
 }
