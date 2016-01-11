@@ -1,0 +1,1 @@
+(qvp) is a binary formula-(p>(q>p)) is a negation(pv-q) is a binary formula--p is a negation-(pv-p) is a negation(p^-p) is a binary formula
