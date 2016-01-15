@@ -186,137 +186,118 @@ int isLiteral(char *g)
 
 int type(char *g)
 {/*return 0 if not a formula, 1 for literal, 2 for alpha, 3 for beta, 4 for double negation*/
-    if(isLiteral(g))
-        return 1;
-    else if(*g == NEG)
-    {
-        char* tail = mytail(g);
-        if(*tail == NEG)
-            return 4;
-        else if(connective(tail) == 'v')
-            return 2;
-        else if (connective(tail) == '^')
-            return 3;
-        else
-            return 2;
-    }
-    else if (*g == '(')
-    {
-        if(connective(g) == 'v')
-            return 3;
-        else if (connective(g) == '^')
-            return 2;
-        else
-            return 3;
-    }
+  if(isLiteral(g))
+    return 1;
+  else if(*g == NEG)
+  {
+    char* tail = mytail(g);
+    if(*tail == NEG)
+      return 4;
+    else if(connective(tail) == 'v')
+      return 2;
+    else if (connective(tail) == '^')
+      return 3;
     else
-        return 0;
+      return 2;
+  }
+  else if (*g == '(')
+  {
+    if(connective(g) == 'v')
+      return 3;
+    else if (connective(g) == '^')
+      return 2;
+    else
+      return 3;
+  }
+  else
+    return 0;
 }
 
 char *negate(char *string)
 {
-    char *newString = malloc(sizeof(string)+1);
-    
-    *newString = NEG;
-    for(i = 0; i < strlen(string); i++)
-        *(newString+i+1) = *(string+i);
-    
-    free(string);
-    
-    return newString;
+  char *newString = malloc(sizeof(string)+1);
+  
+  *newString = NEG;
+  for(i = 0; i < strlen(string); i++)
+    *(newString+i+1) = *(string+i);
+  
+  free(string);
+  
+  return newString;
 }
 
 char *firstExpansion(char *g)
 {
-    if(*g == NEG)
+  if(*g == NEG)
+  {
+    switch(connective(mytail(g)))
     {
-        switch(connective(mytail(g)))
-        {
-            case '>':
-                return partone(mytail(g));
-                break;
-            case '^':
-                return negate(partone(mytail(g)));
-                break;
-            case 'v':
-                return negate(partone(mytail(g)));
-                break;
-            default:
-                printf("Error expanding first part\n");
-                return NULL;
-        }
+      case '>':
+        return partone(mytail(g));
+        break;
+      case '^':
+        return negate(partone(mytail(g)));
+        break;
+      case 'v':
+        return negate(partone(mytail(g)));
+        break;
+      default:
+        printf("Error expanding first part\n");
+        return NULL;
     }
-    else
+  }
+  else
+  {
+    switch(connective(g))
     {
-        switch(connective(g))
-        {
-            case '>':
-                return negate(partone(g));
-                break;
-            case '^':
-                return partone(g);
-                break;
-            case 'v':
-                return partone(g);
-                break;
-            default:
-                printf("Error expanding first part\n");
-                return NULL;
-        }
+      case '>':
+        return negate(partone(g));
+        break;
+      case '^':
+        return partone(g);
+        break;
+      case 'v':
+        return partone(g);
+        break;
+      default:
+        printf("Error expanding first part\n");
+        return NULL;
     }
+  }
 }
 
 char *secondExpansion(char *g)
 {
-    if(*g == NEG)
-        return negate(parttwo(mytail(g)));
-    else
-        return parttwo(g);
-}
-
-int find_above(struct tableau *t, char *g) /*Is g label of current node or above?*/
-{
-    return 0;
-}
-
-int closed1(struct tableau *t) /*check if p and not p at or above t*/
-{
-    if (t==NULL) return(0);
-    else
-    {
-    }
-    return 0;
-}
-
-int closed(struct tableau *t) /*check if either *t is closed 1, or if all children are closed, if so return 1, else 0 */
-{
-    return 0;
+  if(*g == NEG)
+    return negate(parttwo(mytail(g)));
+  else
+    return parttwo(g);
 }
 
 struct tableau *add_one( struct tableau *t, char *g)/* adds g at every leaf below*/
 {
-    struct tableau *newNode = malloc(sizeof(struct tableau));
-    
-    newNode->root = g;
-    newNode->parent = t;
-    newNode->left = NULL;
-    newNode->right = NULL;
-    
-    return newNode;
+  struct tableau *newNode = malloc(sizeof(struct tableau));
+  
+  newNode->root = g;
+  newNode->parent = t;
+  newNode->left = NULL;
+  newNode->right = NULL;
+  
+  return newNode;
 }
 void alpha(struct tableau *t, char *g, char *h)/*not for double negs, adds g then h at every leaf below*/
 {
-    if(t->left == NULL)
-    {
-        t->left = add_one(t, g);
-        t->left->left = add_one(t->left, h);
-    }
-    else
-    {
-        alpha(t->left, g, h);
-        if(t->right != NULL)
-            alpha(t->right, g, h);
-    }
+  if(t->left == NULL)
+  {
+    t->left = add_one(t, g);
+    t->left->left = add_one(t->left, h);
+  }
+  else
+  {
+    alpha(t->left, g, h);
+    if(t->right != NULL)
+      alpha(t->right, g, h);
+  }
 }
 
 void  beta(struct tableau *t, char *g, char *h)/*for beta s, adds g, h on separate branches at every leaf below*/
@@ -371,7 +352,6 @@ void complete(struct tableau *t)/*expands the root then recursively expands any 
 {
     if (t!=NULL)
     {
-      printf("Im in here\n");
         if(parse(t->root) == 0)
             return;
         expand(t);
@@ -385,83 +365,135 @@ void printTableau(struct tableau *t)
     static int z = 0;
     if(t!=NULL)
     {
-        printf("%i: %s\n", z, t->root);
         z++;
-        printf("Left\n");
         printTableau(t->left);
-        printf("right\n");
         printTableau(t->right);
     }
     
 }
+
+char *invert(char *g)
+{
+  int x;
+  char *inverted;
+  if(*g == '-')
+  {
+    inverted = malloc((strlen(g)-1)* sizeof(char));
+    for(x = 0; x<(strlen(g)-1); x++)
+    {
+      *(inverted+x) = *(g+x+1);
+    }
+  }
+  else
+  {
+    inverted = malloc((strlen(g)+1)* sizeof(char));
+    *inverted = NEG;
+    for(x = 0; x<strlen(g); x++)
+    {
+      *(inverted+x+1) = *(g+x);
+    }
+  }
+  return inverted;
+}
+
+void prepend(char* s, const char* t)
+{
+    size_t len = strlen(t);
+    size_t i;
+
+    memmove(s + len, s, strlen(s) + 1);
+
+    for (i = 0; i < len; ++i)
+    {
+        s[i] = t[i];
+    }
+}
+
+int find_above(struct tableau *t, char *g) /*Is g label of current node or above?*/
+{
+  if(t == NULL)
+    return 0;
+  else
+    if(strcmp(t->root, g)==0)
+      return 1;
+    else
+      return find_above(t->parent, g);
+}
+
+int closed1(struct tableau *t) /*check if p and not p at or above t*/
+{
+  if (t==NULL) 
+    return(0);
+  else
+  {
+    char *inverted = invert(t->root);
+    int result = find_above(t->parent, inverted);
+
+    return result;
+  }
+}
+      
+int closed(struct tableau *t) /*check if either *t is closed 1, or if all children are closed, if so return 1, else 0 */
+{
+  if(closed1(t))
+    return 1;
+  else if(t==NULL)
+    return 0;
+
+  if(t->right != NULL)
+    return (closed(t->left) && closed(t->right));
+  else
+    return closed(t->left);
+}
 int main()
 { /*input 6 strings from "input.txt" */
-    // char *testString = "(qvp)";
-    // int result = type(testString);
-    // printf("%d\n", result);
-    // struct tableau testTab;
-    // testTab.root = testString;
-    // testTab.left = NULL;
-    // testTab.right = NULL;
-    // testTab.parent = NULL;
-    // printf("Completing tableau\n");
-    // complete(&testTab);
-    
-    // printTableau(&testTab);
-    
-    // printf("%d\n", result);
-    
-    // return 0;
-      char *names[inputs];/*to store each of the input strings*/
-    
-      for (c=0;c<inputs;c++) names[c]=malloc(Fsize*sizeof(char));/*create enough space*/
-    
-    
-    
-      FILE *fp, *fpout, *fopen();
-    
-      if ((  fp=fopen("input.txt","r"))==NULL){printf("Error opening file");exit(1);}
-      if ((  fpout=fopen("output.txt","w"))==NULL){printf("Error opening file");exit(1);}/*ouputs to be sent to "output.txt"*/
-    
-      fscanf(fp,"%s %s %s %s %s %s",names[0],names[1], names[2], names[3],names[4],names[5]);/*read input strings from "input.txt"*/
-    
-      /*lets check your parser*/
-      for(c=0;c<inputs;c++)
-        {d=parse(names[c]);
-          switch(d)
-      {
-      case(0):fprintf(fpout,"%s is not a formula", names[c]);break;
-      case(1):fprintf(fpout,"%s is a proposition",names[c]);break;
-      case(2):fprintf(fpout,"%s is a negation",names[c]);break;
-      case(3):fprintf(fpout,"%s is a binary formula",names[c]);break;
-      default:fprintf(fpout,"%s is not a formula",names[c]);break;
-      }
-        }
-    
-     /*make 6 new tableaus each with name at root, no children, no parent*/
-    
-      struct tableau tabs[inputs];
-    
-      for(c=0;c<inputs;c++)
-        {
-          printf("%d\n", c);
-          tabs[c].root=names[c];
-          tabs[c].parent=NULL;
-          tabs[c].left=NULL;
-          tabs[c].right=NULL;
-          
-          printf("%d\n", strlen(tabs[c].root)); 
-         /*expand each tableau until complete, then see if closed */
-    
-         complete(&tabs[c]);
+  char *names[inputs];/*to store each of the input strings*/
 
-         printTableau(&tabs[c]);
-    // //      if (closed(&tabs[i])) fprintf(fpout,"%s is not satisfiable\n", names[i]);
-    // //      else fprintf(fpout,"%s is satisfiable\n", names[i]);
-         }
-    // //
-       fclose(fp);
-       fclose(fpout);
-    // // 
-       return(0); 
+  for (c=0;c<inputs;c++) names[c]=malloc(Fsize*sizeof(char));/*create enough space*/
+
+  FILE *fp, *fpout, *fopen();
+
+  if ((  fp=fopen("input.txt","r"))==NULL){printf("Error opening file");exit(1);}
+  if ((  fpout=fopen("output.txt","w"))==NULL){printf("Error opening file");exit(1);}/*ouputs to be sent to "output.txt"*/
+
+  fscanf(fp,"%s %s %s %s %s %s",names[0],names[1], names[2], names[3],names[4],names[5]);/*read input strings from "input.txt"*/
+
+  /*lets check your parser*/
+  for(c=0;c<inputs;c++)
+  {
+    d=parse(names[c]);
+    
+    switch(d)
+    {
+      case(0):fprintf(fpout,"%s is not a formula\n", names[c]);break;
+      case(1):fprintf(fpout,"%s is a proposition\n",names[c]);break;
+      case(2):fprintf(fpout,"%s is a negation\n",names[c]);break;
+      case(3):fprintf(fpout,"%s is a binary formula\n",names[c]);break;
+      default:fprintf(fpout,"%s is not a formula\n",names[c]);break;
+    }
+  }
+
+  /*make 6 new tableaus each with name at root, no children, no parent*/
+
+  struct tableau tabs[inputs];
+
+  for(c=0;c<inputs;c++)
+  {
+    tabs[c].root=names[c];
+    tabs[c].parent=NULL;
+    tabs[c].left=NULL;
+    tabs[c].right=NULL;
+      
+    /*expand each tableau until complete, then see if closed */
+
+    complete(&tabs[c]);
+
+    printTableau(&tabs[c]);
+    if (closed(&tabs[c])) fprintf(fpout,"%s is not satisfiable\n", names[c]);
+    else fprintf(fpout,"%s is satisfiable\n", names[c]);
+  }
+  fclose(fp);
+  fclose(fpout);
+
+  return(0); 
 }
